@@ -220,7 +220,7 @@ void counting_sort(int* arr, int p, int n) {
 int main() {
 	FILE* file;
 	fopen_s(&file, "output.txt", "w");
-	printf("\tselect\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
+	fprintf(file, "select\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
 	fclose(file);
 	printf("\tselect\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
 	int size[] = { 128, 512, 1024, 4096, 8192, 32768, 65536,
