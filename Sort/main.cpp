@@ -218,6 +218,10 @@ void counting_sort(int* arr, int p, int n) {
 // проверка на сортиртировку
 // проверть что всё не "1"
 int main() {
+	FILE* file;
+	fopen_s(&file, "output.txt", "w");
+	fprintf(file, "select\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
+	fclose(file);
 	printf("\tselect\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
 	int size[] = { 128, 512, 1024, 4096, 8192, 32768, 65536,
 		100000, 1000000, 10000000, 100000000, 1000000000 };
