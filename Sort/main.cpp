@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include <iostream>
-#include <thread>
 
 
 void swap(int* el1, int* el2) {
@@ -59,7 +57,7 @@ void poop_optimiz(int* a, int p, int n) {
 }
 
 
-int partition(int arr[], int left, int right) {
+int partition(int* arr, int left, int right) {
 	double pivot = arr[right];
 	int i = left - 1;
 
@@ -73,7 +71,7 @@ int partition(int arr[], int left, int right) {
 	return i + 1;
 }
 
-void quicksort(int arr[], int left, int right) {
+void quicksort(int* arr, int left, int right) {
 	if (left < right) {
 		int p = partition(arr, left, right);
 		quicksort(arr, left, p - 1);
@@ -152,7 +150,7 @@ int check_2(int* x, int n, long long int s) {
 }
 
 
-void debug_test(int n, int* x, int q,
+void debug_test(bool rev, int n, int* x, int q,
 	double* time, void (*Fp)(int*, int, int)) {
 	for (int p = 0; p < 3; p++) {
 		long long int sss = 0;
@@ -175,6 +173,13 @@ void debug_test(int n, int* x, int q,
 		}
 		else {
 			time[q] = -1;
+		}
+	}
+	if (rev) {
+		for (int i = 0; i < (n / 2); i++) {
+			int g = x[i];
+			x[i] = x[n - i - 1];
+			x[n - i - 1] = g;
 		}
 	}
 }
@@ -219,51 +224,86 @@ void counting_sort(int* arr, int p, int n) {
 // 512 - 1_000_000 (1_000_000_000)
 // проверка на сортиртировку
 // проверть что всё не "1"
-void debug_test_thread(int n, int* x, int index, double* time, void (*sort_func)(int*, int, int))
-{
-	debug_test(n, x, index, time, sort_func);
+
+void radix_sort(int* arr, int p, int n) {
+	int i, bucket[10] = { 0 }, max_val = 0, digit_place = 1;
+	int* output = (int*)malloc(n * sizeof(int));
+
+	for (i = 0; i < n; i++) {
+		if (arr[i] > max_val) {
+			max_val = arr[i];
+		}
+	}
+
+	while (max_val / digit_place > 0) {
+		for (i = 0; i < 10; i++) {
+			bucket[i] = 0;
+		}
+
+		for (i = 0; i < n; i++) {
+			bucket[(arr[i] / digit_place) % 10]++;
+		}
+
+		for (i = 1; i < 10; i++) {
+			bucket[i] += bucket[i - 1];
+		}
+
+		for (i = n - 1; i >= 0; i--) {
+			output[bucket[(arr[i] / digit_place) % 10] - 1] = arr[i];
+			bucket[(arr[i] / digit_place) % 10]--;
+		}
+
+		for (i = 0; i < n; i++) {
+			arr[i] = output[i];
+		}
+
+		digit_place *= 10;
+	}
 }
 
 int main() {
+	int t = -1;
+	while (t != 0 && t != 1) {
+		printf("0 - revers false\n1 - revers true\nInput: ");
+		scanf_s("%d", &t);
+		system("cls");
+	}
+	bool revers = false;
+	if (t == 1) revers = true;
 	FILE* file;
 	fopen_s(&file, "output.txt", "w");
-	fprintf(file, "select\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
+	fprintf(file, "select\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\tradix\n");
 	fclose(file);
-	printf("\tselect\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\n");
-	double time[7];
+	printf("\tselect\t\tinsert\t\tpop\t\tpop_optimiz\tquick\t\tmerge\t\tcounting\tradix\n");
+	double time[8];
 	int n;
-	int** x = (int**)malloc(7 * sizeof(int*));
-	for (int j = 0; j <= 40; j++) {
-		for (int i = 0; i < 7; i++) {
+	int* x;
+	for (int j = 10; j <= 40; j++) {
+		for (int i = 0; i < 8; i++) {
 			time[i] = 10000;
 		}
 		n = 2;
 		for (int i = 0; i < j; i++) n *= 2;
-		for (int i = 0; i < 7; i++) {
-			x[i] = (int*)malloc(n * sizeof(int));
-		}
-		std::thread t[7];
-		t[0] = std::thread(debug_test_thread, n, x[0], 0, time, select);
-		t[1] = std::thread(debug_test_thread, n, x[1], 1, time, insert);
-		t[2] = std::thread(debug_test_thread, n, x[2], 2, time, poop);
-		t[3] = std::thread(debug_test_thread, n, x[3], 3, time, poop_optimiz);
-		t[4] = std::thread(debug_test_thread, n, x[4], 4, time, quicksort);
-		t[5] = std::thread(debug_test_thread, n, x[5], 5, time, mergesort);
-		t[6] = std::thread(debug_test_thread, n, x[6], 6, time, counting_sort);
-		for (int i = 0; i < 7; i++)
-		{
-			t[i].join();
-		}
+		x = (int*)malloc(n * sizeof(int));
+		debug_test(revers, n, x, 0, time, select);
+		debug_test(revers, n, x, 1, time, insert);
+		debug_test(revers, n, x, 2, time, poop);
+		debug_test(revers, n, x, 3, time, poop_optimiz);
+		debug_test(revers, n, x, 4, time, quicksort);
+		debug_test(revers, n, x, 5, time, mergesort);
+		debug_test(revers, n, x, 6, time, counting_sort);
+		debug_test(revers, n, x, 7, time, radix_sort);
 		printf("2**%d	", j + 1);
 		FILE* file;
 		fopen_s(&file, "output.txt", "a+");
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 8; i++) {
 			printf("%.3lf\t\t", time[i]);
 			fprintf(file, "%.3lf\t\t", time[i]);
 		}
 		printf("\n");
 		fprintf(file, "\n");
 		fclose(file);
+		free(x);
 		memset(time, 0, sizeof(time));
 	}
 }
